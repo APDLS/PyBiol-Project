@@ -16,18 +16,41 @@ f=open(B)
 h=f.read()
 f.close()
 
+#Extract regions near assembly gaps
 x=0
-call(["blastall", "-d", B, "-i", A, "-outfmt", "10", "-o", "Duplicates.csv", "-m", "8"])
-
-g=open("Duplicated_Genes", "w")
-found = "no"
-with open("Duplicates.csv", "rb") as f:
-	mycsv = csv.reader(f)
-	for row in mycsv:
-		text = row[10]
-		if float(text) < 1e-200:
-			print row
-			found = "yes"
-	if found == "yes":
-		g.write(i)
-		g.write("\n")
+Genome=False
+Sequence=""
+for i in g:
+	x=x+1
+	if ">" in g[x]:
+		Genome=True
+	while Genome==True and x<len(g):
+		Sequence=Sequence+str(g[x])
+h=open("Duplicated_Genes", "w")
+for i in g:
+	if "assembly_gap" in i:
+		coords1=int(re.findall("\d+", i))
+		coords2=re.findall("..\d+",i)
+		coords2=int(coords2.replace("..", ""))
+		gap1=g[coords1-1000:coords1]
+		gap2=g[coords2:coords2+1000]
+		f=open("temp_query.fasta", "w")
+		f.write(str(gap1))
+		f.close()
+		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-outfmt", "10", "-o", "Duplicates1.csv", "-m", "8"])
+		f=open("temp_query.fasta", "w")
+		f.write(str(gap2))
+		f.close()
+		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-outfmt", "10", "-o", "Duplicates2.csv", "-m", "8"])
+		found = "no"
+		with open("Duplicates.csv", "rb") as f:
+			f.next()			
+			mycsv = csv.reader(f)
+			for row in mycsv:
+				text = row[2]
+				if float(text) < 1e-200:
+				print row
+				found = "yes"
+			if found == "yes":
+			h.write(i)
+			h.write("\n")
