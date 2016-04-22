@@ -6,50 +6,50 @@ A=raw_input()
 
 #Open Genome File
 f=open(A)
-g=f.readlines()
+g=f.read()
 f.close()
 
 #Extract Genome Sequence
 x=0
 Genome=False
 Sequence=""
-for i in g:
+while x<len(g):
+	if ">" in g[x]:
+		Genome=True
+	if Genome==True:
+		Sequence=Sequence+str(g[x])
 	x=x+1
-	while x<len(g):
-		if ">" in g[x]:
-			Genome=True
-		if Genome==True:
-			Sequence=Sequence+str(g[x])
-
+		
 #Extract regions near assembly gaps, regions of 10+ Ns
 x=0
 y=0
+Gap=False
 h=open("Duplicated_Genes", "w")
 while x<len(Sequence):
-	if Sequence[x]=="N":
+	x=x+1
+	while Sequence[x]=="N":
 		y=y+1
 		x=x+1
 		if y==10:
-			print "N"
 			gap1=Sequence[x-1010:x-10]
+			print gap1
 			Gap=True
 			x=x+1
-			if Sequence[x+1]!="N" and Gap==True:
-				gap2=Sequence[x:x+1000]
-			else:
-				x=x+1
-	x=x+1
+	if Gap==True and x+1000<len(Sequence):
+		gap2=Sequence[x:x+1000]
+		x=x+1
 	y=0
+	Gap=False
 #Run BLAST regions to either side of the assembly gap
 	f=open("temp_query.fasta", "w")
 	f.write(str(gap1))
 	f.close()
 	if Gap==True:
-		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-outfmt", "10", "-o", "Duplicates1.csv", "-m", "8"])
+		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-outfmt", "10", "-out", "Duplicates1.csv", "-outfmt", "10"])
 		f=open("temp_query.fasta", "w")
 		f.write(str(gap2))
 		f.close()
-		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-outfmt", "10", "-o", "Duplicates2.csv", "-m", "8"])
+		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-outfmt", "10", "-out", "Duplicates2.csv", "-outfmt", "10"])
 		found = "no"
 #Take hits of over 99% sequence identity from the results files, excluding the first line.		
 		with open("Duplicates1.csv", "rb") as f:
