@@ -1,6 +1,7 @@
 import os
 import subprocess
 from subprocess import call
+import csv
 print "Input Genome gff File"
 A=raw_input()
 
@@ -19,7 +20,9 @@ while x<len(g):
 	if Genome==True:
 		Sequence=Sequence+str(g[x])
 	x=x+1
-		
+
+Sequence=Sequence.replace("\n", "")
+
 #Extract regions near assembly gaps, regions of 10+ Ns
 x=0
 y=0
@@ -38,6 +41,9 @@ while x<len(Sequence):
 	if Gap==True and x+1000<len(Sequence):
 		gap2=Sequence[x:x+1000]
 		x=x+1
+	if Gap==True and x+1000>len(Sequence):
+		gap2=Sequence[x:len(Sequence)]
+		x=x+1
 	y=0
 	Gap=False
 #Run BLAST regions to either side of the assembly gap
@@ -45,11 +51,11 @@ while x<len(Sequence):
 	f.write(str(gap1))
 	f.close()
 	if Gap==True:
-		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-outfmt", "10", "-out", "Duplicates1.csv", "-outfmt", "10"])
+		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-out", "Duplicates1.csv", "-outfmt", "10"])
 		f=open("temp_query.fasta", "w")
 		f.write(str(gap2))
 		f.close()
-		call(["blastn", "-query", "temp_query.fasta", "-db", A, "-outfmt", "10", "-out", "Duplicates2.csv", "-outfmt", "10"])
+		call(["blastn", "-query", "temp_query.fasta", "-db", A,"-out", "Duplicates2.csv", "-outfmt", "10"])
 		found = "no"
 #Take hits of over 99% sequence identity from the results files, excluding the first line.		
 		with open("Duplicates1.csv", "rb") as f:
@@ -57,21 +63,20 @@ while x<len(Sequence):
 			mycsv = csv.reader(f)
 			for row in mycsv:
 				text = row[2]
-				if float(text) < 99:
-				print row
-				found = "yes"
+				if float(text) > 99:
+					print row
+					found = "yes"
 			if found == "yes":
-				h.write(i)
+				h.write(str(row))
 				h.write("\n")
 		with open("Duplicates2.csv", "rb") as f:
 			f.next()			
 			mycsv = csv.reader(f)
 			for row in mycsv:
 				text = row[2]
-				if float(text) < 99:
-				print row
-				found = "yes"
+				if float(text) > 99:
+					print row
+					found = "yes"
 			if found == "yes":
-				h.write(i)
+				h.write(str(row))
 				h.write("\n")
-		Gap=False
