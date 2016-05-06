@@ -21,8 +21,9 @@ x=0
 for line in h:
 	if ">" in line:
 		gene=str(line)
-		while ">" in g[x]:
-			gene=gene+"\n"+str(g[x])
+		x=x+1
+		while ">" not in g[x]:
+			gene=gene+str(g[x])
 			x=x+1
 		genes.add(gene)
 	x=x+1
