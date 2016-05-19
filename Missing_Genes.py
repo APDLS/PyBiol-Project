@@ -22,32 +22,32 @@ for line in h:
 	if ">" in line:
 		gene=str(line)
 		x=x+1
-		while ">" not in g[x]:
-			gene=gene+str(g[x])
+		while ">" not in h[x]:
+			gene=gene+str(h[x])
 			x=x+1
 		genes.add(gene)
 	x=x+1
 
-g = open("Missing_Genes.txt","w")
-for i in genes:
-	f=open("Temp_Genes.fasta","w")
-	f.write(str(i))
-	f.close()
-	Annotation_Missing=False
-	call(["blastx", "-db", A, "-query", "Temp_Genes.fasta", "-outfmt", "10", "-out", "Temp.csv"])
-	found = "no"
-	with open("Temp.csv", "rb") as f:
-		mycsv = csv.reader(f)
-		for row in mycsv:
-			text = row[10]
-			if float(text) < 1e-10:
-				print row
-				found = "yes"
-		if found == "no":
-			g.write(i)
-			g.write("\n")
-			print "Annotation Missing "+str(i)
-			Annotation_Missing=True
+with open("Missing_Genes.txt","w") as g:
+	for i in genes:
+		f=open("Temp_Genes.fasta","w")
+		f.write(str(i))
+		f.close()
+		Annotation_Missing=False
+		call(["blastx", "-db", A, "-query", "Temp_Genes.fasta", "-outfmt", "10", "-out", "Temp.csv"])
+		found = "no"
+		with open("Temp.csv", "rb") as f:
+			mycsv = csv.reader(f)
+			for row in mycsv:
+				text = row[10]
+				if float(text) < 1e-10:
+					print row
+					found = "yes"
+			if found == "no":
+				g.write(i)
+				g.write("\n")
+				print "Annotation Missing "+str(i)
+				Annotation_Missing=True
 	if Annotation_Missing=True:
 		call(["blastx", "-db", B, "-query", "Temp_Genes.fasta", "-outfmt", "10", "-out", "Temp.csv"])
 		found = "no"
@@ -63,3 +63,4 @@ for i in genes:
 				g.write("\n")
 				print "Assembly Missing "+str(i)
 g.close()
+
