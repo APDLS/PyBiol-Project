@@ -3,11 +3,13 @@ import subprocess
 from subprocess import call
 import csv
 print "Input Annotated Genome File"
+#Args
 A=raw_input()
 print "Input Raw Genome File"
 B=raw_input()
 print "Input Reference Genes FASTA File"
 C=raw_input()
+#Separate scripts
 
 #Open Genes File
 f=open(C)
@@ -36,7 +38,7 @@ with open("Missing_Genes.txt","w") as g:
 		Annotation_Missing=False
 		call(["blastx", "-db", A, "-query", "Temp_Genes.fasta", "-outfmt", "10", "-out", "Temp.csv"])
 		found = "no"
-		with open("Temp.csv", "rb") as f:
+		with open("Temp.csv", "r") as f:
 			mycsv = csv.reader(f)
 			for row in mycsv:
 				text = row[10]
@@ -59,6 +61,7 @@ with open("Missing_Genes.txt","w") as g:
 					print row
 					found = "yes"
 			if found == "no":
+				#Meaningful file names
 				g.write("Missing in Assembly:"+i)
 				g.write("\n")
 				print "Assembly Missing "+str(i)
