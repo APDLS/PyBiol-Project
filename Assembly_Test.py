@@ -12,6 +12,7 @@ f.close()
 
 #Extract Genome Sequence
 x=0
+#Lowercase variables
 Genome=False
 Sequence=""
 while x<len(g):
