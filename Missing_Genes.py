@@ -64,9 +64,8 @@ with open("Missing_Genes.txt","w") as g:
 				print "Assembly Missing "+str(i)
 g.close()
 call(["/home/alex/tRNAscan-SE-1.3.1/trnascan-1.4", B+"/"+str(i), "-o", "/home/alex/tRNA_Output/tRNAs_"+str(i)])
-	f=open("/home/alex/tRNA_Output/tRNAs_"+str(i))
-	h=f.readlines()
-	f.close()
+	with f as open("/home/alex/tRNA_Output/tRNAs_"+str(i)):
+		h=f.readlines()
 	s=0
 	tRNAs=[]
 	sequences=[]
@@ -103,26 +102,26 @@ call(["/home/alex/tRNAscan-SE-1.3.1/trnascan-1.4", B+"/"+str(i), "-o", "/home/al
 	k=A+"/"+i
 	m=open(k)
 	l=m.readlines()
-	f=open(B+"With_tRNAs", "w")
-	for line in l:
-		if "ORIGIN" not in line:
-			f.write(str(line))
-		else:
-			w=0
-			for target in tRNAs2:
-				f.write("     tRNA            ")
-				extranumbers=re.findall("\d+", target)
-				if extranumbers[1] < extranumbers[0]:
-					f.write("complement(")
-				f.write(str(extranumbers[0]))
-				f.write("..")
-				f.write(str(extranumbers[1]))
-				if extranumbers[1] < extranumbers[0]:
-					f.write(")")
-				f.write("\n")
-				f.write("                      /gene=")
-				f.write("tRNA "+str(amino_acids2[w][0:3]))
-				f.write("\n")
-				f.write("                      /note="+str(amino_acids2[w][4:]))	
-				w=w+1
-			f.write(str(line))
+	with f as open(B+"With_tRNAs", "w"):
+		for line in l:
+			if "ORIGIN" not in line:
+				f.write(str(line))
+			else:
+				w=0
+				for target in tRNAs2:
+					f.write("     tRNA            ")
+					extranumbers=re.findall("\d+", target)
+					if extranumbers[1] < extranumbers[0]:
+						f.write("complement(")
+					f.write(str(extranumbers[0]))
+					f.write("..")
+					f.write(str(extranumbers[1]))
+					if extranumbers[1] < extranumbers[0]:
+						f.write(")")
+					f.write("\n")
+					f.write("                      /gene=")
+					f.write("tRNA "+str(amino_acids2[w][0:3]))
+					f.write("\n")
+					f.write("                      /note="+str(amino_acids2[w][4:]))	
+					w=w+1
+				f.write(str(line))
